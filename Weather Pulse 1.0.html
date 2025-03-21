@@ -5,26 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weather Pulse</title>
     <style>
-        /* Body Styling */
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            background: url('https://t4.ftcdn.net/jpg/09/49/93/87/360_F_949938751_1485y50Q5moCIB5Gaolv9pHavPEjGWo2.jpg') no-repeat center center fixed;
+            background: url('https://upload.wikimedia.org/wikipedia/commons/f/f3/Soltan_salt_lake_iran.jpg') no-repeat center center fixed;
             background-size: cover;
             margin: 0;
-            padding: 20px; /* Added padding for better spacing */
+            padding: 20px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            min-height: 100vh;
         }
 
-        /* Container Styling */
         .container {
             max-width: 90%;
             width: 400px;
-            max-height: 80vh; /* Limit the height of the container */
-            overflow-y: auto; /* Enable vertical scrolling */
             background: rgba(255, 255, 255, 0.8);
             padding: 20px;
             border-radius: 10px;
@@ -32,18 +29,43 @@
             transition: background-color 0.3s, color 0.3s;
         }
 
-        /* Buttons and Inputs */
-        input, button {
-            margin-top: 10px;
-            padding: 10px;
+        .search-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
             width: 100%;
+        }
+
+        input {
+            padding: 8px;
+            width: calc(100% - 45px);
             border: 1px solid #ccc;
             border-radius: 5px;
             box-sizing: border-box;
-            transition: opacity 0.3s;
+            text-align: left;
+        }
+
+        .voice-search-switch {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 5px;
         }
 
         button {
+            margin-top: 10px;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            border-radius: 5px;
             background-color: #007bff;
             color: white;
             cursor: pointer;
@@ -53,7 +75,6 @@
             opacity: 0.8;
         }
 
-        /* Dark Mode Styling */
         .dark-mode {
             background-color: #121212;
             color: white;
@@ -74,44 +95,39 @@
             color: white;
         }
 
-        /* Footer Styling */
         .footer {
             font-size: 12px;
             color: rgba(255, 255, 255, 0.7);
             margin-top: 20px;
+            text-align: center;
         }
 
         .dark-mode .footer {
             color: rgba(255, 255, 255, 0.5);
         }
-
-        /* Media Queries for Responsiveness */
-        @media (max-width: 600px) {
-            .container {
-                padding: 15px;
-            }
-
-            .footer {
-                font-size: 10px;
-            }
-        }
     </style>
+    <script>
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+    </script>
 </head>
 <body>
-    <div class="container" role="main">
+    <div class="container">
         <h2>Weather Pulse</h2>
-        <button class="toggle-btn" onclick="toggleDarkMode()" aria-label="Toggle dark mode">Dark Mode 🌙</button>
-        <input type="text" id="location" placeholder="Enter location" aria-label="Location input">
-        <button onclick="getWeather()" aria-label="Get weather">Get Weather</button>
-        <button onclick="getWeatherByLocation()" aria-label="Auto detect location">Auto Detect Location</button>
-        <button onclick="startVoiceSearch()" aria-label="Start voice search">Voice Search 🎙️</button>
-        <div id="weather-result" role="region" aria-live="polite"></div>
-        <div id="forecast-result" role="region" aria-live="polite"></div>
+        <button class="toggle-btn" onclick="toggleDarkMode()">Dark Mode 🌙</button>
+        <div class="search-wrapper">
+            <input type="text" id="location" placeholder="Enter location">
+            <button class="voice-search-switch" onclick="startVoiceSearch()">🎙️</button>
+        </div>
+        <button onclick="getWeather()">Get Weather</button>
+        <button onclick="getWeatherByLocation()">Auto Detect Location</button>
+        <div id="weather-result"></div>
+        <div id="forecast-result"></div>
     </div>
-    <div class="footer">
-        Developed By - Debojyoti Banerjee
+    <div class="footer">© 2025 Weather Pulse. All rights reserved.</div>
+    <div class="footer">Developed By - Debojyoti Banerjee</div>
     </div>
-
     <script>
         function toggleDarkMode() {
             const body = document.body;
@@ -214,34 +230,34 @@
         }
 
         function getWeatherByLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(async (position) => {
-                    const lat = position.coords.latitude;
-                    const lon = position.coords.longitude;
-                    const apiKey = '54dc45aae6ca4662851143634250903';
-                    const url = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${lat},${lon}&aqi=yes`;
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            const apiKey = '54dc45aae6ca4662851143634250903';
+            const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${lat},${lon}&aqi=yes`; // Changed to HTTPS
 
-                    try {
-                        const response = await fetch(url);
-                        const data = await response.json();
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
 
-                        if (data.error) {
-                            document.getElementById('weather-result').innerHTML = `<p>${data.error.message}</p>`;
-                            return;
-                        }
+                if (data.error) {
+                    document.getElementById('weather-result').innerHTML = `<p>${data.error.message}</p>`;
+                    return;
+                }
 
-                        displayWeather(data);
-                    } catch (error) {
-                        document.getElementById('weather-result').innerHTML = '<p>Failed to fetch weather data</p>';
-                    }
-                }, () => {
-                    alert('Geolocation access denied. Please enable location services.');
-                });
-            } else {
-                alert('Geolocation is not supported by this browser.');
+                displayWeather(data);
+            } catch (error) {
+                document.getElementById('weather-result').innerHTML = '<p>Failed to fetch weather data</p>';
             }
-        }
-
+        }, (error) => {
+            console.error("Geolocation error:", error);
+            alert('Geolocation access denied. Please enable location services.');
+        });
+    } else {
+        alert('Geolocation is not supported by this browser.');
+    }
+}
         // Voice Search Function
         function startVoiceSearch() {
             console.log("Voice search triggered");
