@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Pulse</title>
+    <style>
+        /* Body Styling */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: url('https://t4.ftcdn.net/jpg/09/49/93/87/360_F_949938751_1485y50Q5moCIB5Gaolv9pHavPEjGWo2.jpg') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            padding: 20px; /* Added padding for better spacing */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Container Styling */
+        .container {
+            max-width: 90%;
+            width: 400px;
+            max-height: 80vh; /* Limit the height of the container */
+            overflow-y: auto; /* Enable vertical scrolling */
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Buttons and Inputs */
+        input, button {
+            margin-top: 10px;
+            padding: 10px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            transition: opacity 0.3s;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        /* Dark Mode Styling */
+        .dark-mode {
+            background-color: #121212;
+            color: white;
+        }
+
+        .dark-mode .container {
+            background: rgba(51, 51, 51, 0.8);
+            color: white;
+        }
+
+        .toggle-btn {
+            margin-top: 10px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+        }
+
+        /* Footer Styling */
+        .footer {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 20px;
+        }
+
+        .dark-mode .footer {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Media Queries for Responsiveness */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+
+            .footer {
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" role="main">
+        <h2>Weather Pulse</h2>
+        <button class="toggle-btn" onclick="toggleDarkMode()" aria-label="Toggle dark mode">Dark Mode 🌙</button>
+        <input type="text" id="location" placeholder="Enter location" aria-label="Location input">
+        <button onclick="getWeather()" aria-label="Get weather">Get Weather</button>
+        <button onclick="getWeatherByLocation()" aria-label="Auto detect location">Auto Detect Location</button>
+        <button onclick="startVoiceSearch()" aria-label="Start voice search">Voice Search 🎙️</button>
+        <div id="weather-result" role="region" aria-live="polite"></div>
+        <div id="forecast-result" role="region" aria-live="polite"></div>
+    </div>
+    <div class="footer">
+        Developed By - Debojyoti Banerjee
+    </div>
+
+    <script>
+        function toggleDarkMode() {
+            const body = document.body;
+            const toggleBtn = document.querySelector(".toggle-btn");
+            if (body.classList.contains("dark-mode")) {
+                body.classList.remove("dark-mode");
+                toggleBtn.textContent = "Dark Mode 🌙"; // Light mode
+            } else {
+                body.classList.add("dark-mode");
+                toggleBtn.textContent = "Light Mode 🌞"; // Dark mode
+            }
+        }
+
+        function getEmoji(condition) {
+            const lowerCondition = condition.toLowerCase();
+            if (lowerCondition.includes("clear")) {
+                return "☀️"; 
+            } else if (lowerCondition.includes("cloud")) {
+                return "☁️"; 
+            } else if (lowerCondition.includes("rain")) {
+                return "🌧️"; 
+            } else if (lowerCondition.includes("fog")) {
+                return "🌫️"; 
+            } else if (lowerCondition.includes("snow")) {
+                return "❄️"; 
+            } else if (lowerCondition.includes("storm")) {
+                return "⛈️"; 
+            } else if (lowerCondition.includes("wind")) {
+                return "💨"; 
+            }
+            return "🌍"; 
+        }
+
+        async function getWeather() {
+            const location = document.getElementById('location').value;
+            if (!location) {
+                alert('Please enter a location');
+                return;
+            }
+
+            const apiKey = '54dc45aae6ca4662851143634250903';
+            const currentWeatherUrl = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}&aqi=yes`;
+            const forecastUrl = `http://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${location}&days=5`;
+
+            try {
+                const currentWeatherResponse = await fetch(currentWeatherUrl);
+                const currentWeatherData = await currentWeatherResponse.json();
+
+                const forecastResponse = await fetch(forecastUrl);
+                const forecastData = await forecastResponse.json();
+
+                if (currentWeatherData.error) {
+                    document.getElementById('weather-result').innerHTML = `<p>${currentWeatherData.error.message}</p>`;
+                    return;
+                }
+
+                displayWeather(currentWeatherData);
+                displayForecast(forecastData.forecast.forecastday);
+
+            } catch (error) {
+                document.getElementById('weather-result').innerHTML = '<p>Failed to fetch weather data</p>';
+            }
+        }
+
+        function displayWeather(data) {
+            const { temp_c, is_day, last_updated, condition, air_quality } = data.current;
+            const { name, region, country } = data.location;
+            const dayOrNight = is_day ? "Day ☀️" : "Night 🌙";
+            const emoji = getEmoji(condition.text);
+            const [date, time] = last_updated.split(" ");
+
+            // Map AQI to a human-readable format
+            const aqiLevel = air_quality.pm2_5 <= 50 ? "Good" :
+                            air_quality.pm2_5 <= 100 ? "Moderate" :
+                            air_quality.pm2_5 <= 150 ? "Unhealthy for Sensitive Groups" :
+                            air_quality.pm2_5 <= 200 ? "Unhealthy" :
+                            air_quality.pm2_5 <= 300 ? "Very Unhealthy" : "Hazardous";
+
+            document.getElementById('weather-result').innerHTML = `
+                <h3>${name}, ${region}, ${country}</h3>
+                <p>Temperature: ${temp_c}°C</p>
+                <p>Weather: ${condition.text} ${emoji}</p>
+                <p>Date: ${date}</p>
+                <p>Time: ${time}</p>
+                <p>Time of Day: ${dayOrNight}</p>
+                <p>Air Quality (PM2.5): ${air_quality.pm2_5} (${aqiLevel})</p>
+                <img src="${condition.icon}" alt="Weather icon">
+            `;
+        }
+
+        function displayForecast(forecastData) {
+            const forecastContainer = document.getElementById('forecast-result');
+            forecastContainer.innerHTML = `
+                <h3>5-Day Forecast</h3>
+                ${forecastData.map(day => `
+                    <p>${new Date(day.date).toLocaleDateString('en-US', { weekday: 'long' })}:
+                    ${getEmoji(day.day.condition.text)} ${day.day.avgtemp_c}°C (${day.day.condition.text})</p>
+                `).join('')}
+            `;
+        }
+
+        function getWeatherByLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    const apiKey = '54dc45aae6ca4662851143634250903';
+                    const url = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${lat},${lon}&aqi=yes`;
+
+                    try {
+                        const response = await fetch(url);
+                        const data = await response.json();
+
+                        if (data.error) {
+                            document.getElementById('weather-result').innerHTML = `<p>${data.error.message}</p>`;
+                            return;
+                        }
+
+                        displayWeather(data);
+                    } catch (error) {
+                        document.getElementById('weather-result').innerHTML = '<p>Failed to fetch weather data</p>';
+                    }
+                }, () => {
+                    alert('Geolocation access denied. Please enable location services.');
+                });
+            } else {
+                alert('Geolocation is not supported by this browser.');
+            }
+        }
+
+        // Voice Search Function
+        function startVoiceSearch() {
+            console.log("Voice search triggered");
+
+            // Check for browser support
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("Your browser does not support speech recognition. Please use Google Chrome.");
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = "en-US";
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            // Ensure recognition is triggered only once per click
+            recognition.onstart = function () {
+                console.log("Listening for voice input...");
+            };
+
+            recognition.onresult = function (event) {
+                const transcript = event.results[0][0].transcript.trim();
+                console.log("Recognized speech:", transcript);
+                document.getElementById("location").value = transcript;
+                getWeather(); // Trigger weather search
+            };
+
+            recognition.onerror = function (event) {
+                console.error("Speech recognition error:", event.error);
+                alert("Speech recognition error: " + event.error);
+            };
+
+            recognition.onend = function () {
+                console.log("Speech recognition stopped.");
+            };
+
+            try {
+                recognition.start();
+            } catch (error) {
+                console.error("Error starting speech recognition:", error);
+                alert("Error starting speech recognition: " + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
