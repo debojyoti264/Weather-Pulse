@@ -20,4 +20,10 @@ Click "Auto Detect Location" to fetch weather based on GPS.
 Click the "Dark Mode" button to toggle themes.
 After searching, the app expands to show the 5-day forecast.
 
+This is my project! 🎉
+
+## Preview:
+![Project Preview](https://github.com/debojyoti264/Weather-Pulse/blob/main/Weather%20Pulse%20Demo.png)
+
+
 Developed By Debojyoti Banerjee 🚀
