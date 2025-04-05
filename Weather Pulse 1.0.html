@@ -110,18 +110,28 @@
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
         }
+        function showOnGoogleMaps() {
+    const location = document.getElementById('location').value;
+    if (location) {
+        const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+        window.open(url, '_blank');
+    } else {
+        alert('Please enter a location to view on Google Maps.');
+    }
+}
     </script>
 </head>
 <body>
     <div class="container">
         <h2>Weather Pulse</h2>
-        <button class="toggle-btn" onclick="toggleDarkMode()">Dark Mode 🌙</button>
+        <button class="toggle-btn" onclick="toggleDarkMode()">🌙 Dark Mode</button>
         <div class="search-wrapper">
             <input type="text" id="location" placeholder="Enter location">
             <button class="voice-search-switch" onclick="startVoiceSearch()">🎙️</button>
         </div>
-        <button onclick="getWeather()">Get Weather</button>
-        <button onclick="getWeatherByLocation()">Auto Detect Location</button>
+        <button onclick="getWeather()">🌤️ Get Weather</button>
+        <button onclick="getWeatherByLocation()">📍 Auto Detect Location</button>
+        <button onclick="showOnGoogleMaps()">🗺️ Show on Google Maps</button> <!-- New Button -->
         <div id="weather-result"></div>
         <div id="forecast-result"></div>
     </div>
