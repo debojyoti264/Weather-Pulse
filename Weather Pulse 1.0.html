@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -239,33 +238,38 @@
             `;
         }
 
-        function getWeatherByLocation() {
+        async function getWeatherByLocation() {
+    const weatherResult = document.getElementById('weather-result');
+    weatherResult.innerHTML = '<p>Loading...</p>'; // Show loading message
+
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(async (position) => {
             const lat = position.coords.latitude;
             const lon = position.coords.longitude;
-            const apiKey = '54dc45aae6ca4662851143634250903';
-            const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${lat},${lon}&aqi=yes`; // Changed to HTTPS
+            const apiKey = '54dc45aae6ca4662851143634250903'; // Replace with your actual API key
+            const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${lat},${lon}&aqi=yes`;
 
             try {
                 const response = await fetch(url);
                 const data = await response.json();
 
                 if (data.error) {
-                    document.getElementById('weather-result').innerHTML = `<p>${data.error.message}</p>`;
+                    weatherResult.innerHTML = `<p>${data.error.message}</p>`;
                     return;
                 }
 
                 displayWeather(data);
             } catch (error) {
-                document.getElementById('weather-result').innerHTML = '<p>Failed to fetch weather data</p>';
+                weatherResult.innerHTML = '<p>Failed to fetch weather data</p>';
             }
         }, (error) => {
             console.error("Geolocation error:", error);
             alert('Geolocation access denied. Please enable location services.');
+            weatherResult.innerHTML = ''; // Clear loading message
         });
     } else {
         alert('Geolocation is not supported by this browser.');
+        weatherResult.innerHTML = ''; // Clear loading message
     }
 }
         // Voice Search Function
