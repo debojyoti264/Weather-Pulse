@@ -26,7 +26,7 @@ After searching, the app expands to show the 5-day forecast.
 This is my project! 🎉
 
 ## Preview:
-![Project Preview](https://github.com/debojyoti264/Weather-Pulse/blob/main/Weather%20Pulse%20Demo.png)
+![Project Preview](https://github.com/debojyoti264/Weather-Pulse/blob/290c3b0692412e31dd5dfb93f604e9808de41936/Demo%20Snap.png)
 
 
 Developed By Debojyoti Banerjee 🚀
